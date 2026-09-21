@@ -43,7 +43,7 @@ Lab01_2351260673_NguyenVanMinh/
 ### Tiến độ các khối nội dung
 
 - [x] **Khối A: Đọc, kiểm tra dữ liệu và trực quan hóa chuỗi âm thanh ban đầu** (Hoàn thành: Hỗ trợ cả 2 tệp Piano và Giọng nói, chuẩn hóa $[-1.0, 1.0]$, đo đạc Peak/RMS, bảng so sánh `pandas.DataFrame`, trực quan hóa sơ bộ dạng sóng ban đầu).
-- [ ] **Khối B: Phân tích miền thời gian** (Waveform zoom đoạn $0.5 - 1.0\text{ s}$, Peak, RMS, Energy, so sánh 2 đoạn đặc trưng, xuất `figures/waveform.png`).
+- [x] **Khối B: Phân tích miền thời gian** (Hoàn thành: Đo đạc Peak, RMS, Energy, phân tích 2 đoạn tương phản năng lượng cao vs. khoảng lặng chênh lệch 25.6 lần, xuất đồ thị chuẩn `figures/waveform.png`).
 - [ ] **Khối C: Phân tích miền tần số bằng FFT** (Magnitude spectrum theo Hz và dB, xác định $\ge 3$ đỉnh phổ, khảo sát $N_{\text{FFT}}$ và $\Delta f$).
 - [ ] **Khối D: STFT và Spectrogram** (Spectrogram 2D, khảo sát độ dài khung 10ms, 25ms, 50ms, phân tích trade-off thời gian - tần số).
 - [ ] **Khối E: Thí nghiệm Cửa sổ (Windowing)** (So sánh Rectangular vs. Hamming, rò rỉ phổ và độ rộng búp sóng chính).

@@ -75,3 +75,27 @@ $\text{Peak} = \max|x[n]|$, $\text{RMS} = \sqrt{\frac{1}{N}\sum x^2[n]}$, $E = \
 1. **Piano** có các đỉnh rời rạc trùng với nốt nhạc (sai lệch < 4.2 Hz). **Speech** tập trung dưới 500 Hz, $F_0 \approx 109$ Hz (giọng nam).
 2. **Zero-padding** chỉ làm lưới tần số dày hơn (nội suy): các điểm của $N = 2048$ nằm đúng trên đường cong $N = 65536$. Độ phân giải thực chỉ tăng khi tăng $L$.
 
+---
+
+## KHỐI D: STFT VÀ SPECTROGRAM
+
+$X[m,k] = \sum_n x[n]\,w[n-mH]\,e^{-j2\pi kn/N}$. Cố định: Hamming, hop 10 ms, $N_{\text{FFT}} = 4096$, thang màu $[-80, 0]$ dB. Chỉ thay đổi độ dài khung. Đoạn khảo sát: Speech 10–14 s, Piano 22.5–26.5 s.
+
+**Kiểm chứng:** STFT tự viết khớp `scipy.signal.stft`; thỏa Parseval ($14.360626 = 14.360626$); số khung $M = 1 + \lfloor (N_x - L)/H \rfloor$ đúng ở cả 6 cấu hình.
+
+| Khung | $L$ | $B_{3dB} \approx 1.30F_s/L$ | Số đỉnh < 1 kHz (Speech / Piano) | Số khung lặng (đo / lý thuyết) |
+|:---:|:---:|:---:|:---:|:---:|
+| 10 ms | 480 | 130 Hz | 0 / 1 | 20 / 20 |
+| 25 ms | 1200 | 52 Hz | 2 / 3 | 18 / 18 |
+| 50 ms | 2400 | 26 Hz | 8 / 8 | 16 / 16 |
+
+![Spectrogram Speech](../figures/spectrogram_speech.png)
+![Spectrogram Piano](../figures/spectrogram_piano.png)
+
+*Hình D.1–D.2: Hàng 1 là toàn bài (khung 25 ms); hàng 2–4 là cùng một đoạn 4 s với khung 10 / 25 / 50 ms.*
+
+**Nhận xét:**
+1. **Khung dài thì phân giải tần số tốt hơn:** Khung 10 ms có $B_{3dB} = 130$ Hz, lớn hơn $F_0 = 109$ Hz nên các họa âm bị gộp lại (không đếm được đỉnh nào dưới 1 kHz). Khung 50 ms tách được 8 đỉnh.
+2. **Khung ngắn thì phân giải thời gian tốt hơn:** Khoảng lặng 206.6 ms chỉ được "nhìn thấy" bởi các khung nằm trọn trong nó, nên số khung lặng giảm 20 → 16 khi khung dài ra. Khung dài làm nhòe biên sự kiện.
+3. **Ổn định và transient:** Nốt ngân và nguyên âm tạo vạch ngang (vùng ổn định). Lúc bấm phím và lúc bắt đầu phát âm tạo vạch dọc dải rộng (transient). Khung 25 ms là mức cân bằng.
+

@@ -151,3 +151,72 @@ Thiết kế bằng `firwin`: cửa sổ Hamming, 401 taps, $F_s = 48$ kHz. Ba b
 2. Speech tập trung dưới 1 kHz nên HPF chỉ giữ 4% năng lượng (mất $F_0$, tiếng mỏng). Piano nhiều họa âm cao nên HPF giữ 18%.
 3. Trễ 4.17 ms là rất nhỏ, dùng được cho xử lý real-time.
 
+---
+
+## KHỐI G: LƯỢNG TỬ HÓA, RESAMPLING VÀ MÃ HÓA
+
+### 1. Lượng tử hóa
+
+$\hat{x} = \text{round}(x q)/q$ với $q = 2^{B-1} - 1$, bước $\Delta = 1/q$. Đã kiểm tra $|e| \le \Delta/2$ ở mọi $B$. Xuất `audio/quantized_{speech,piano}_{4,8,16}bit.wav`.
+
+| $B$ | SNR Speech | SNR Piano | Lý thuyết $6.02B + 4.77 + 20\log\sigma_x$ | $\sigma_e^2/(\Delta^2/12)$ |
+|:---:|:---:|:---:|:---:|:---:|
+| 4 | 6.25 dB | 4.35 dB | 5.2 dB | 0.60 / 0.92 |
+| 8 | 29.48 dB | 29.17 dB | 29.3 dB | 0.94 / 1.00 |
+| 12 | 53.40 dB | 53.32 dB | 53.3 dB | 0.99 / 1.00 |
+| 16 | 90.31 dB | 90.31 dB | 77.4 dB | 0.05 / 0.05 |
+
+![Quantization](../figures/quantization.png)
+
+**Nhận xét:**
+1. Với 6–14 bit, SNR tăng 5.98 / 6.04 dB/bit, đúng quy luật 6.02 dB/bit. Nhiễu 8 bit là nhiễu trắng, đúng mức $\Delta^2/12$.
+2. **4 bit lệch lý thuyết:** $\Delta = 0.143$ lớn hơn RMS 0.066 nên nhiều mẫu bị làm tròn về 0. Nhiễu bám theo tín hiệu, không còn là nhiễu đều.
+3. **16 bit lệch lý thuyết:** Nguồn đã là PCM 16 bit nên lượng tử lại gần như không mất gì, SNR 90 dB > 77 dB.
+4. Nhiễu dễ nghe nhất ở dải cao, nơi tín hiệu yếu, và ở các đoạn nhỏ hoặc lặng.
+
+### 2. Resampling
+
+Dùng `resample_poly` (có lọc chống chồng phổ). Xuất `audio/resampled_{speech,piano}_{16k,8k}.wav`.
+
+| Tệp | $F_s$ mới | Số mẫu | Năng lượng giữ lại | Năng lượng gốc dưới $F_s/2$ mới |
+|:---|:---:|:---:|:---:|:---:|
+| Speech | 16 kHz | 563 883 | 0.9983 | 0.9976 |
+| Speech | 8 kHz | 281 942 | 0.9943 | 0.9933 |
+| Piano | 16 kHz | 563 883 | 1.0010 | 1.0000 |
+| Piano | 8 kHz | 281 942 | 0.9997 | 0.9986 |
+
+![Resampling](../figures/resampling.png)
+
+**Nhận xét:**
+1. Số mẫu $= \lceil N F_{s2}/F_s \rceil$. Năng lượng giữ lại xấp xỉ năng lượng gốc dưới Nyquist mới (theo Parseval).
+2. Ở 8 kHz, Speech mất dải trên 4 kHz (0.67% năng lượng, chủ yếu là phụ âm xát s, x), nên nghe có thể kém rõ hơn. Piano gần như không đổi.
+3. Bỏ mẫu `x[::6]` mà không lọc gây **aliasing** −21.9 dB (Speech) và −30.0 dB (Piano), thấy rõ ở phổ vùng 3–4 kHz bị nâng lên.
+
+### 3. Bit rate và compression ratio
+
+| Định dạng | $R = F_s B C$ | Dung lượng (35.243 s) |
+|:---|:---:|:---:|
+| PCM stereo 48 kHz / 16 bit | 1536 kbps | 6.767 MB |
+| PCM mono 16 kHz / 16 bit | 256 kbps | 1.128 MB |
+| PCM mono 8 kHz / 16 bit | 128 kbps | 0.564 MB |
+| MP3 (file gốc) | 194 kbps | 0.855 MB |
+
+**Nhận xét:**
+1. $\text{CR} = 6.767/0.855 = 7.92$, tiết kiệm 87.4% (so với PCM cùng $F_s$ và $C$).
+2. Dung lượng WAV thực tế đúng bằng $N \cdot 2 \cdot C + 44$ byte cho cả 16 file đã xuất.
+3. MP3 là nén lossy (phổ bị cắt ở ~15–16 kHz), nên không dùng làm ground truth.
+
+---
+
+## TRẢ LỜI CÂU HỎI BÁO CÁO
+
+1. **Vì sao chỉ đến 22.05 kHz?** Ta có $\cos\!\left(2\pi (F_s - f) n/F_s\right) = \cos(2\pi n - 2\pi f n/F_s) = \cos(2\pi f n/F_s)$. Hai tần số $f$ và $F_s - f$ cho cùng một chuỗi mẫu, nên chỉ dải $[0, F_s/2] = [0, 22.05]$ kHz được biểu diễn duy nhất.
+2. **$N_{\text{FFT}}$ 2048 → 8192, khung 25 ms:** Thay đổi: $\Delta f$ bin giảm từ 21.53 xuống 5.38 Hz. Không đổi: độ phân giải vật lý (≈ 52 Hz với Hamming) và độ phân giải thời gian, vì cả hai chỉ phụ thuộc $L$.
+3. **Hamming và rò rỉ phổ:** Hamming làm hai đầu khung giảm dần nên side-lobe hạ từ −13.3 xuống −42.7 dB (ít rò rỉ). Đổi lại main-lobe rộng gấp đôi (40 → 80 Hz), nên hai đỉnh sát nhau dễ bị gộp.
+4. **FIR 201 taps @ 44.1 kHz:** $\tau_g = 100/44100 = 2.27$ ms. Độ trễ này nhỏ so với ngưỡng cảm nhận khoảng 10 ms nên không đáng kể cho real-time, trừ khi nối nhiều tầng.
+5. **Vai trò của $B$ và mức tín hiệu:** Mỗi bit thêm vào làm SNR tăng 6.02 dB. Vì $\Delta$ cố định theo $X_{\max}$, tín hiệu nhỏ hơn bao nhiêu dB thì SNR giảm bấy nhiêu dB. Ở bài này, $\sigma_x = 0.066$ làm mất 23.6 dB so với tín hiệu full-scale.
+6. **WAV 60 s:** $44100 \times 16 \times 2 \times 60 / 8 = 10.58$ MB. MP3 128 kbps: 0.96 MB, nên CR ≈ 11.
+7. **SNR thấp hơn nhưng nghe tốt hơn:**
+   * (a) MP3/AAC đặt nhiễu dưới ngưỡng che (masking), nên tai không nhận ra.
+   * (b) Dither biến nhiễu bám theo tín hiệu (như trường hợp 4 bit) thành nhiễu trắng êm hơn, dù tổng công suất nhiễu tăng.
+   * (c) Tín hiệu chỉ bị trễ hoặc đổi pha (ví dụ không bù $\tau_g$) nghe y hệt bản gốc, nhưng SNR tính theo từng mẫu rất thấp.

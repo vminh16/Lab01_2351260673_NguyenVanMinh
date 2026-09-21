@@ -3,7 +3,7 @@
 * **Học phần:** CSE457 – Xử lý âm thanh và tiếng nói
 * **Sinh viên:** Nguyễn Văn Minh – MSSV 2351260673
 * **Môi trường:** Python 3.12 (NumPy, SciPy, Matplotlib, Pandas, Pydub, SoundFile)
-* **Dữ liệu:** `audio/piano_sample.mp3` (âm nhạc), `audio/news_speech.mp3` (tiếng nói)
+* **Dữ liệu:** `audio/input_piano.mp3` (âm nhạc), `audio/input_speech.mp3` (tiếng nói)
 
 ---
 
@@ -16,10 +16,16 @@
 | Piano | 48 kHz | 2 | 16 | 35.243 s | 834.8 KB | 194.0 kbps | 1536 kbps | 0.4420 (−7.09 dBFS) | 0.0653 (−23.70 dBFS) |
 | Speech | 48 kHz | 2 | 16 | 35.243 s | 834.6 KB | 194.0 kbps | 1536 kbps | 0.4571 (−6.80 dBFS) | 0.0658 (−23.64 dBFS) |
 
+| Stereo → mono | RMS L | RMS R | RMS mono | Tương quan $\rho_{LR}$ | mono $= (L+R)/2$ |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| Piano | 0.0889 | 0.0842 | 0.0653 | 0.14 | Đúng (≤ 1 LSB) |
+| Speech | 0.0680 | 0.0651 | 0.0658 | 0.95 | Đúng (≤ 1 LSB) |
+
 **Nhận xét:**
 1. $F_s = 48$ kHz cho Nyquist $F_s/2 = 24$ kHz, phủ hết dải nghe 20 Hz – 20 kHz.
 2. Không bị clipping: Peak < 1 với headroom ≥ 6.8 dB.
-3. MP3 là định dạng nén lossy. Giải mã sang PCM 16 bit không khôi phục được phần thông tin đã mất.
+3. **Mono:** $\text{RMS}_{mono}^2 = (\text{RMS}_L^2 + \text{RMS}_R^2 + 2\rho\,\text{RMS}_L\text{RMS}_R)/4$. Speech có 2 kênh gần giống nhau nên RMS gần như không đổi. Piano thu stereo rộng ($\rho = 0.14$) nên RMS giảm khoảng 2.5 dB khi trộn mono.
+4. MP3 là định dạng nén lossy. Giải mã sang PCM 16 bit không khôi phục được phần thông tin đã mất.
 
 ---
 
@@ -36,8 +42,8 @@ $\text{Peak} = \max|x[n]|$, $\text{RMS} = \sqrt{\frac{1}{N}\sum x^2[n]}$, $E = \
 | Piano | 11–12 s (hợp âm mạnh) | 0.3349 | −21.62 | 330.65 |
 | Piano | 0–1 s (dạo nhẹ) | 0.1361 | −29.63 | 52.25 |
 
-![Waveform Speech](../figures/waveform_speech.png)
-![Waveform Piano](../figures/waveform_piano.png)
+![Waveform Speech](figures/waveform_speech.png)
+![Waveform Piano](figures/waveform_piano.png)
 
 *Hình B.1–B.2: Hàng 1 là toàn bài, có tô màu 2 đoạn khảo sát; hàng 2–3 là 2 đoạn đó phóng to.*
 
@@ -66,8 +72,8 @@ $\text{Peak} = \max|x[n]|$, $\text{RMS} = \sqrt{\frac{1}{N}\sum x^2[n]}$, $E = \
 | Khung ngắn + zero-padding | 2048 | 65536 | 0.73 Hz | **23.44 Hz (không đổi)** |
 | Đoạn 1 s | 48000 | 65536 | 0.73 Hz | 1.00 Hz |
 
-![FFT Piano](../figures/fft_piano.png)
-![FFT Speech](../figures/fft_speech.png)
+![FFT Piano](figures/fft_piano.png)
+![FFT Speech](figures/fft_speech.png)
 
 *Hình C.1–C.2: Phổ tuyến tính, phổ dB có đánh dấu 5 đỉnh, và so sánh $N_{\text{FFT}}$ 2048 với 65536 trên dải 50–600 Hz.*
 
@@ -89,8 +95,8 @@ $X[m,k] = \sum_n x[n]\,w[n-mH]\,e^{-j2\pi kn/N}$. Cố định: Hamming, hop 10 
 | 25 ms | 1200 | 52 Hz | 2 / 3 | 18 / 18 |
 | 50 ms | 2400 | 26 Hz | 8 / 8 | 16 / 16 |
 
-![Spectrogram Speech](../figures/spectrogram_speech.png)
-![Spectrogram Piano](../figures/spectrogram_piano.png)
+![Spectrogram Speech](figures/spectrogram_speech.png)
+![Spectrogram Piano](figures/spectrogram_piano.png)
 
 *Hình D.1–D.2: Hàng 1 là toàn bài (khung 25 ms); hàng 2–4 là cùng một đoạn 4 s với khung 10 / 25 / 50 ms.*
 
@@ -112,7 +118,7 @@ Dùng cùng một khung 50 ms ($L = 2400$), $N_{\text{FFT}} = 65536$. Piano lấ
 | Độ rộng −3 dB của đỉnh thực (Piano / Speech) | 19.8 / 19.8 Hz | 29.3 / 24.2 Hz |
 | Nền phổ 5–10 kHz (Piano / Speech) | −56.8 / −55.9 dB | −72.8 / −71.4 dB |
 
-![Windowing](../figures/window.png)
+![Windowing](figures/window.png)
 
 *Hình E.1: Cửa sổ $w[n]$, phổ $|W(f)|$, và log-spectrum của cùng một khung tín hiệu.*
 
@@ -141,8 +147,8 @@ Thiết kế bằng `firwin`: cửa sổ Hamming, 401 taps, $F_s = 48$ kHz. Ba b
 | Speech | 95% | 4% | 41% |
 | Piano | 79% | 18% | 52% |
 
-![Filter response](../figures/filter_response.png)
-![Filter spectrum](../figures/filter_spectrum.png)
+![Filter response](figures/filter_response.png)
+![Filter spectrum](figures/filter_spectrum.png)
 
 *Hình F.1: $|H(f)|$ và độ trễ nhóm. Hình F.2: PSD trước/sau lọc; độ lợi đo được (nét liền) trùng $|H(f)|$ (nét chấm).*
 
@@ -166,7 +172,7 @@ $\hat{x} = \text{round}(x q)/q$ với $q = 2^{B-1} - 1$, bước $\Delta = 1/q$.
 | 12 | 53.40 dB | 53.32 dB | 53.3 dB | 0.99 / 1.00 |
 | 16 | 90.31 dB | 90.31 dB | 77.4 dB | 0.05 / 0.05 |
 
-![Quantization](../figures/quantization.png)
+![Quantization](figures/quantization.png)
 
 **Nhận xét:**
 1. Với 6–14 bit, SNR tăng 5.98 / 6.04 dB/bit, đúng quy luật 6.02 dB/bit. Nhiễu 8 bit là nhiễu trắng, đúng mức $\Delta^2/12$.
@@ -185,7 +191,7 @@ Dùng `resample_poly` (có lọc chống chồng phổ). Xuất `audio/resampled
 | Piano | 16 kHz | 563 883 | 1.0010 | 1.0000 |
 | Piano | 8 kHz | 281 942 | 0.9997 | 0.9986 |
 
-![Resampling](../figures/resampling.png)
+![Resampling](figures/resampling.png)
 
 **Nhận xét:**
 1. Số mẫu $= \lceil N F_{s2}/F_s \rceil$. Năng lượng giữ lại xấp xỉ năng lượng gốc dưới Nyquist mới (theo Parseval).

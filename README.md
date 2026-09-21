@@ -13,8 +13,8 @@
 Lab01_2351260673_NguyenVanMinh/
 ├── .venv/                              # Môi trường ảo Python
 ├── audio/                              # Dữ liệu âm thanh
-│   ├── piano_sample.mp3                # Tệp âm nhạc Piano (Music)
-│   ├── news_speech.mp3                 # Tệp tiếng nói Bản tin (Speech)
+│   ├── input_piano.mp3                 # Tệp vào: âm nhạc Piano
+│   ├── input_speech.mp3                # Tệp vào: tiếng nói bản tin
 │   ├── filtered_*.wav                  # Sau lọc LPF 1k / HPF 1k / BPF 300-3400 (Khối F)
 │   ├── quantized_*.wav                 # Sau lượng tử hóa 4 / 8 / 16 bit (Khối G)
 │   └── resampled_*.wav                 # Sau resampling 16 kHz / 8 kHz (Khối G)
@@ -27,9 +27,9 @@ Lab01_2351260673_NguyenVanMinh/
 │   ├── filter_spectrum.png             # Phổ trước/sau lọc (Khối F)
 │   ├── quantization.png                # SNR và phổ nhiễu lượng tử (Khối G)
 │   └── resampling.png                  # Phổ sau resampling (Khối G)
-├── reports/                            # Thư mục báo cáo thực hành
-│   └── report_Lab01.md                 # Báo cáo kỹ thuật chi tiết
 ├── Lab01_2351260673.ipynb              # Notebook thực hành toàn bộ bài Lab
+├── report_Lab01.md                     # Báo cáo thực hành
+├── requirements.txt                    # Thư viện Python cần cài
 └── README.md                           # Giới thiệu và hướng dẫn dự án
 ```
 
@@ -37,17 +37,14 @@ Lab01_2351260673_NguyenVanMinh/
 
 ### Hướng dẫn môi trường và thực thi
 
-1. **Môi trường ảo Python:**
-   * Sử dụng Python 3.12 với các thư viện: `numpy`, `scipy`, `matplotlib`, `pandas`, `pydub`, `soundfile`, `ipykernel`.
-
-2. **Khởi chạy Notebook:**
-   * Mở tệp [Lab01_2351260673.ipynb](Lab01_2351260673.ipynb) trong VS Code hoặc Jupyter Lab và chọn kernel Python từ `.venv` (hoặc `base (Python 3.12)`).
+1. **Cài đặt:** Python 3.12 và `pip install -r requirements.txt`. `pydub` cần [FFmpeg](https://ffmpeg.org) có trong `PATH` để đọc MP3.
+2. **Chạy:** Mở [Lab01_2351260673.ipynb](Lab01_2351260673.ipynb), chọn kernel Python đã cài thư viện trên (ví dụ `.venv`), rồi chạy tuần tự từ đầu đến cuối (Run All). Toàn bộ hình trong `figures/` và file WAV trong `audio/` được tạo lại tự động.
 
 ---
 
 ### Tiến độ các khối nội dung
 
-- [x] **Khối A: Đọc, kiểm tra dữ liệu và trực quan hóa chuỗi âm thanh ban đầu** (Hoàn thành: Hỗ trợ cả 2 tệp Piano và Giọng nói, chuẩn hóa $[-1.0, 1.0]$, đo đạc Peak/RMS, bảng so sánh `pandas.DataFrame`, trực quan hóa sơ bộ dạng sóng ban đầu).
+- [x] **Khối A: Đọc, kiểm tra dữ liệu và trực quan hóa chuỗi âm thanh ban đầu** (Hoàn thành: Hỗ trợ cả 2 tệp Piano và Giọng nói, chuẩn hóa $[-1.0, 1.0]$, so sánh stereo/mono (RMS, dạng sóng), đo đạc Peak/RMS, bảng so sánh `pandas.DataFrame`, trực quan hóa sơ bộ dạng sóng ban đầu).
 - [x] **Khối B: Phân tích miền thời gian** (Hoàn thành: Đo đạc Peak, RMS, Energy, phân tích 2 đoạn tương phản năng lượng cao vs. khoảng lặng chênh lệch 25.6 lần, xuất đồ thị tách biệt `waveform_speech.png` và `waveform_piano.png`).
 - [x] **Khối C: Phân tích miền tần số bằng FFT** (Hoàn thành: Cửa sổ Hamming, xác định 5 đỉnh phổ chính cho cả Piano và Tiếng nói, khảo sát $N_{\text{FFT}} = 2048$ vs $65536$, phân biệt khoảng cách bin $\Delta f$ và độ phân giải vật lý, xuất `fft_piano.png` và `fft_speech.png`).
 - [x] **Khối D: STFT và Spectrogram** (Hoàn thành: STFT tự viết khớp `scipy`, Parseval; khung 10/25/50 ms cho 2 tệp; kiểm chứng trade-off bằng số đỉnh phân tách và khoảng lặng 206.6 ms).

@@ -121,3 +121,33 @@ Dùng cùng một khung 50 ms ($L = 2400$), $N_{\text{FFT}} = 65536$. Piano lấ
 2. **Rectangular:** main-lobe hẹp nên tách được các đỉnh sát nhau, nhưng side-lobe cao làm năng lượng rò ra khắp phổ: nền phổ cao hơn khoảng 16 dB.
 3. **Hamming:** đổi main-lobe rộng gấp đôi lấy ít rò rỉ, nên thấy được cả các thành phần yếu. Hamming phù hợp hơn để phân tích âm thanh.
 
+---
+
+## KHỐI F: LỌC SỐ FIR
+
+Thiết kế bằng `firwin`: cửa sổ Hamming, 401 taps, $F_s = 48$ kHz. Ba bộ lọc: LPF 1 kHz, HPF 1 kHz, BPF 300–3400 Hz. Lọc bằng `lfilter`, bù trễ $\tau_g$, rồi xuất `audio/filtered_{speech,piano}_*.wav`.
+
+| Kiểm chứng | Kết quả |
+|:---|:---|
+| $b[n] = b[L-1-n]$ (pha tuyến tính) | Đúng cả 3 bộ lọc |
+| $\tau_g = (L-1)/2$ | 200 mẫu = 4.17 ms |
+| $\vert H\vert$ tại tần số cắt | −6.0 dB |
+| Dải chắn LPF | ≤ −55.4 dB (lý thuyết Hamming ≈ −53 dB) |
+| $h_{LP} + h_{HP} = \delta[n-200]$ | Sai lệch $1.4 \times 10^{-4}$; cộng 2 tín hiệu ra tái tạo $x$ với SNR 62 dB |
+| $10\log(P_{yy}/P_{xx})$ so với $20\log\vert H\vert$ | Sai lệch trung vị < $4 \times 10^{-4}$ dB |
+
+| Năng lượng giữ lại | LPF 1k | HPF 1k | BPF 300–3400 |
+|:---|:---:|:---:|:---:|
+| Speech | 95% | 4% | 41% |
+| Piano | 79% | 18% | 52% |
+
+![Filter response](../figures/filter_response.png)
+![Filter spectrum](../figures/filter_spectrum.png)
+
+*Hình F.1: $|H(f)|$ và độ trễ nhóm. Hình F.2: PSD trước/sau lọc; độ lợi đo được (nét liền) trùng $|H(f)|$ (nét chấm).*
+
+**Nhận xét:**
+1. Phổ sau lọc trùng với $|H(f)|$ trong dải thông, dải chuyển tiếp (≈ 395 Hz) và dải chắn. Lọc là phép nhân phổ: $Y = HX$.
+2. Speech tập trung dưới 1 kHz nên HPF chỉ giữ 4% năng lượng (mất $F_0$, tiếng mỏng). Piano nhiều họa âm cao nên HPF giữ 18%.
+3. Trễ 4.17 ms là rất nhỏ, dùng được cho xử lý real-time.
+

@@ -99,3 +99,25 @@ $X[m,k] = \sum_n x[n]\,w[n-mH]\,e^{-j2\pi kn/N}$. Cố định: Hamming, hop 10 
 2. **Khung ngắn thì phân giải thời gian tốt hơn:** Khoảng lặng 206.6 ms chỉ được "nhìn thấy" bởi các khung nằm trọn trong nó, nên số khung lặng giảm 20 → 16 khi khung dài ra. Khung dài làm nhòe biên sự kiện.
 3. **Ổn định và transient:** Nốt ngân và nguyên âm tạo vạch ngang (vùng ổn định). Lúc bấm phím và lúc bắt đầu phát âm tạo vạch dọc dải rộng (transient). Khung 25 ms là mức cân bằng.
 
+---
+
+## KHỐI E: THÍ NGHIỆM CỬA SỔ
+
+Dùng cùng một khung 50 ms ($L = 2400$), $N_{\text{FFT}} = 65536$. Piano lấy tại 11.0 s, Speech tại 13.0 s.
+
+| Chỉ số | Rectangular (đo / lý thuyết) | Hamming (đo / lý thuyết) |
+|:---|:---:|:---:|
+| Main-lobe (null-to-null) | 39.6 / 40 Hz | 80.6 / 80 Hz |
+| Side-lobe cao nhất | −13.3 / −13.3 dB | −42.7 / −42.7 dB |
+| Độ rộng −3 dB của đỉnh thực (Piano / Speech) | 19.8 / 19.8 Hz | 29.3 / 24.2 Hz |
+| Nền phổ 5–10 kHz (Piano / Speech) | −56.8 / −55.9 dB | −72.8 / −71.4 dB |
+
+![Windowing](../figures/window.png)
+
+*Hình E.1: Cửa sổ $w[n]$, phổ $|W(f)|$, và log-spectrum của cùng một khung tín hiệu.*
+
+**Nhận xét:**
+1. Số đo khớp lý thuyết: main-lobe $2F_s/L$ và $4F_s/L$, side-lobe −13.3 và −42.7 dB.
+2. **Rectangular:** main-lobe hẹp nên tách được các đỉnh sát nhau, nhưng side-lobe cao làm năng lượng rò ra khắp phổ: nền phổ cao hơn khoảng 16 dB.
+3. **Hamming:** đổi main-lobe rộng gấp đôi lấy ít rò rỉ, nên thấy được cả các thành phần yếu. Hamming phù hợp hơn để phân tích âm thanh.
+

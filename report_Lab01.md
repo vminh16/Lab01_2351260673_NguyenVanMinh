@@ -154,8 +154,16 @@ Thiết kế bằng `firwin`: cửa sổ Hamming, 401 taps, $F_s = 48$ kHz. Ba b
 
 **Nhận xét:**
 1. Phổ sau lọc trùng với $|H(f)|$ trong dải thông, dải chuyển tiếp (≈ 395 Hz) và dải chắn. Lọc là phép nhân phổ: $Y = HX$.
-2. Speech tập trung dưới 1 kHz nên HPF chỉ giữ 4% năng lượng (mất $F_0$, tiếng mỏng). Piano nhiều họa âm cao nên HPF giữ 18%.
+2. Speech tập trung dưới 1 kHz nên HPF chỉ giữ 4% năng lượng. Piano có nhiều họa âm cao nên HPF giữ 18%.
 3. Trễ 4.17 ms là rất nhỏ, dùng được cho xử lý real-time.
+
+**Cảm nhận nghe** (khớp với phổ):
+
+| File | Cảm nhận | Lý do theo phổ |
+|:---|:---|:---|
+| LPF 1 kHz | Đục, như nghe qua tường; mất tiếng "s", "x" | Mất dải trên 1 kHz |
+| HPF 1 kHz | Mỏng, rè như loa điện thoại nhỏ; giọng mất độ trầm, piano mất bass | Mất $F_0$ và các họa âm thấp |
+| BPF 300–3400 Hz | Giống giọng qua điện thoại, vẫn hiểu lời rõ | Giữ đúng băng thoại |
 
 ---
 
@@ -178,7 +186,7 @@ $\hat{x} = \text{round}(x q)/q$ với $q = 2^{B-1} - 1$, bước $\Delta = 1/q$.
 1. Với 6–14 bit, SNR tăng 5.98 / 6.04 dB/bit, đúng quy luật 6.02 dB/bit. Nhiễu 8 bit là nhiễu trắng, đúng mức $\Delta^2/12$.
 2. **4 bit lệch lý thuyết:** $\Delta = 0.143$ lớn hơn RMS 0.066 nên nhiều mẫu bị làm tròn về 0. Nhiễu bám theo tín hiệu, không còn là nhiễu đều.
 3. **16 bit lệch lý thuyết:** Nguồn đã là PCM 16 bit nên lượng tử lại gần như không mất gì, SNR 90 dB > 77 dB.
-4. Nhiễu dễ nghe nhất ở dải cao, nơi tín hiệu yếu, và ở các đoạn nhỏ hoặc lặng.
+4. **Cảm nhận nghe:** 16 bit không khác bản gốc. 8 bit có tiếng xì nền nhẹ, rõ nhất ở đoạn nhỏ hoặc lặng, vì nhiễu trắng lấn át ở nơi tín hiệu yếu. 4 bit rè và méo, các đoạn nhỏ bị mất hẳn do mẫu bị làm tròn về 0.
 
 ### 2. Resampling
 
@@ -195,7 +203,7 @@ Dùng `resample_poly` (có lọc chống chồng phổ). Xuất `audio/resampled
 
 **Nhận xét:**
 1. Số mẫu $= \lceil N F_{s2}/F_s \rceil$. Năng lượng giữ lại xấp xỉ năng lượng gốc dưới Nyquist mới (theo Parseval).
-2. Ở 8 kHz, Speech mất dải trên 4 kHz (0.67% năng lượng, chủ yếu là phụ âm xát s, x), nên nghe có thể kém rõ hơn. Piano gần như không đổi.
+2. **Cảm nhận nghe:** Bản 16 kHz gần như không khác bản gốc (chỉ mất dải trên 8 kHz). Bản 8 kHz của Speech hơi bí, kém sáng, tiếng "s" bị nhòe, vì mất dải trên 4 kHz (0.67% năng lượng, chủ yếu là phụ âm xát). Piano ở 8 kHz gần như không đổi, vì năng lượng trên 4 kHz chỉ chiếm 0.14%.
 3. Bỏ mẫu `x[::6]` mà không lọc gây **aliasing** −21.9 dB (Speech) và −30.0 dB (Piano), thấy rõ ở phổ vùng 3–4 kHz bị nâng lên.
 
 ### 3. Bit rate và compression ratio

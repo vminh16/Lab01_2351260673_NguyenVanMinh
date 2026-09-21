@@ -18,8 +18,12 @@ Lab01_2351260673_NguyenVanMinh/
 │   ├── filtered_*.wav                  # Tệp âm thanh sau lọc (Khối F)
 │   └── quantized_*.wav                 # Tệp âm thanh sau lượng tử hóa (Khối G)
 ├── figures/                            # Thư mục đồ thị thực nghiệm
-│   ├── waveform.png                    # Đồ thị dạng sóng chuẩn toàn bài + đoạn zoom (Khối B)
-│   ├── fft.png                         # Đồ thị phổ FFT (Khối C)
+│   ├── waveform_speech.png             # Đồ thị dạng sóng Tiếng nói (Khối B)
+│   ├── waveform_piano.png              # Đồ thị dạng sóng Âm nhạc Piano (Khối B)
+│   ├── waveform.png                    # Bản sao dạng sóng chuẩn (Khối B)
+│   ├── fft_speech.png                  # Đồ thị phổ FFT Tiếng nói (Khối C)
+│   ├── fft_piano.png                   # Đồ thị phổ FFT Âm nhạc Piano (Khối C)
+│   ├── fft.png                         # Bản sao phổ FFT chuẩn (Khối C)
 │   ├── spectrogram.png                 # Đồ thị Spectrogram STFT (Khối D & E)
 │   └── filter_response.png             # Đáp ứng tần số bộ lọc (Khối F)
 ├── reports/                            # Thư mục báo cáo thực hành
@@ -43,8 +47,8 @@ Lab01_2351260673_NguyenVanMinh/
 ### Tiến độ các khối nội dung
 
 - [x] **Khối A: Đọc, kiểm tra dữ liệu và trực quan hóa chuỗi âm thanh ban đầu** (Hoàn thành: Hỗ trợ cả 2 tệp Piano và Giọng nói, chuẩn hóa $[-1.0, 1.0]$, đo đạc Peak/RMS, bảng so sánh `pandas.DataFrame`, trực quan hóa sơ bộ dạng sóng ban đầu).
-- [x] **Khối B: Phân tích miền thời gian** (Hoàn thành: Đo đạc Peak, RMS, Energy, phân tích 2 đoạn tương phản năng lượng cao vs. khoảng lặng chênh lệch 25.6 lần, xuất đồ thị chuẩn `figures/waveform.png`).
-- [ ] **Khối C: Phân tích miền tần số bằng FFT** (Magnitude spectrum theo Hz và dB, xác định $\ge 3$ đỉnh phổ, khảo sát $N_{\text{FFT}}$ và $\Delta f$).
+- [x] **Khối B: Phân tích miền thời gian** (Hoàn thành: Đo đạc Peak, RMS, Energy, phân tích 2 đoạn tương phản năng lượng cao vs. khoảng lặng chênh lệch 25.6 lần, xuất đồ thị tách biệt `waveform_speech.png` và `waveform_piano.png`).
+- [x] **Khối C: Phân tích miền tần số bằng FFT** (Hoàn thành: Cửa sổ Hamming, xác định 5 đỉnh phổ chính cho cả Piano và Tiếng nói, khảo sát $N_{\text{FFT}} = 2048$ vs $65536$, phân biệt khoảng cách bin $\Delta f$ và độ phân giải vật lý, xuất `fft_piano.png` và `fft_speech.png`).
 - [ ] **Khối D: STFT và Spectrogram** (Spectrogram 2D, khảo sát độ dài khung 10ms, 25ms, 50ms, phân tích trade-off thời gian - tần số).
 - [ ] **Khối E: Thí nghiệm Cửa sổ (Windowing)** (So sánh Rectangular vs. Hamming, rò rỉ phổ và độ rộng búp sóng chính).
 - [ ] **Khối F: Lọc số** (Thiết kế FIR Low-pass và High-pass/Band-pass, đáp ứng $|H(f)|$, group delay, xuất file `filtered_*.wav`).
